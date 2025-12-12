@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Spam Classifier</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Spam Classifier</h1>
+
+    <textarea id="text" rows="5" placeholder="Enter your email text here..."></textarea>
+
+    <button id="btn">Check Spam</button>
+
+    <div id="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <div id="output"></div>
+</div>
+
+
+<script>
+    const button = document.getElementById("btn");
+    const output = document.getElementById("output");
+    const loader = document.getElementById("loader");
+
+    button.addEventListener("click", async () => {
+        const text = document.getElementById("text").value.trim();
+
+        output.style.display = "none";
+        loader.style.display = "block";
+
+        const response = await fetch("/predict", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({text})
+        });
+
+        const data = await response.json();
+
+        loader.style.display = "none";
+        output.style.display = "block";
+
+        if (data.prediction === "spam") {
+            output.style.background = "#ffe5e5";
+            output.style.color = "#d11a1a";
+        } else {
+            output.style.background = "#e5ffe8";
+            output.style.color = "#1a8b2b";
+        }
+
+        output.innerText = `${data.prediction.toUpperCase()} (Confidence: ${(data.probability * 100).toFixed(2)}%)`;
+    });
+</script>
+
+</body>
+</html>
